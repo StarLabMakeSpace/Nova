@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 # Nova Library v1.12
+=======
+# Nova Library v1.00
+>>>>>>> origin/master
 
-Arduino Library for Easy Electronic Modules
+Arduino Library for Easy Nova Modules
 
 How to use:
 
+<<<<<<< HEAD
 1. Download the source from the git https://github.com/StarLabMakerSpace/Nova/releases
+=======
+1. Download the source from the git https://github.com/StarLabMakerSpace/Nova
+>>>>>>> origin/master
 
 2. copy the nova folder to your arduino default library. Your Arduino library folder should now look like this 
    (on Windows): [arduino installation directory]\libraries\nova\src
