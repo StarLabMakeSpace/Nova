@@ -2,6 +2,24 @@
 #define _NOVA_H_
 
 //#define GYRO_PORT_M0
+#define IR_BUTTON_0	79
+#define IR_BUTTON_1	255
+#define IR_BUTTON_2	127
+#define IR_BUTTON_3	191
+#define IR_BUTTON_4	223
+#define IR_BUTTON_5	95
+#define IR_BUTTON_6	159
+#define IR_BUTTON_7	239
+#define IR_BUTTON_8	111
+#define IR_BUTTON_9	175
+#define IR_BUTTON_OK 87
+#define IR_BUTTON_UP 119
+#define IR_BUTTON_DOWN	103
+#define IR_BUTTON_LEFT	215
+#define IR_BUTTON_RIGHT	151
+#define IR_BUTTON_SPARK 207
+#define IR_BUTTON_POUND	143
+
 
 #define USER	0x80
 #define C0	USER+1
@@ -89,7 +107,9 @@
 #include "Nova_MQ.h"
 #include "Nova_Flame.h"
 #include "Nova_4ADButton.h"
-#include "Nova_Ultrasonic.h"
+// #include "Nova_Ultrasonic.h"
+#include "Nova_Ultrasonic_analog.h"
+#include "Nova_Ultrasonic_digit.h"
 #include "Nova_Buzzer.h"
 #include "Nova_DHTxx.h"
 #include "Nova_LineFinder.h"
@@ -105,12 +125,16 @@
 #include "Nova_MP3.h"
 #include "Nova_Touch.h"
 
-#include "Nova_ir.h"
+//#include "Nova_ir.h"
 
 #include "Nova_Stepper.h"
 #include "Nova_Matrix.h"
 #include "Nova_GLLED.h"
 #include "NOVA_DS18B20.h"
+
+#include "mb.h"
+#include "Nova_ThreeGrayscale.h"
+#include "Nova_InfraredReceive.h"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ //Get system time
 //

@@ -62,6 +62,7 @@ public:
   int16_t width(void);
   void setRotation(uint8_t r);
   uint8_t getRotation(void);
+  uint8_t SCL_pin,SDA_pin;
 protected:
   int16_t  WIDTH, HEIGHT;   // this is the 'raw' display w/h - never changes
   int16_t  _width, _height; // dependent on rotation
@@ -72,6 +73,12 @@ protected:
   boolean  wrap; // If set, 'wrap' text at right edge of display
 private:
   uint8_t i2c_addr;
+  void IICbegin(uint8_t sdapin,uint8_t sclpin);
+  bool IICstart(uint8_t addr);
+  bool IICrestart(uint8_t addr);
+  void IICstop();
+  uint8_t IICread(uint8_t last);
+  bool IICwrite(uint8_t data);
 };
 
 #endif

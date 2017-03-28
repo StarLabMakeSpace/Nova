@@ -25,18 +25,32 @@ void BlueTooth::begin(long baud)
     {
         Serial.begin(baud);
            
-        Serial.write("AT+NAMENova BT"); 
+        //Serial.write("AT+NAME=Nova BT"); 
+		//Serial.println(Serial.readString());
+		//delay(100);
+		//Serial.write("AT+ADDR=?");
+		//delay(100);
+		//Serial.write("AT+LADDRLADDR"); 
+		//delay(100);
+		//Serial.println(Serial.readString());
     }
     else if (_port == SOFTWARE)
     {
         SoftwareSerial::begin(baud);
            
-        SoftwareSerial::write("AT+NAMENova BT"); 
+        //SoftwareSerial::write("AT+NAME=Nova BT"); 
+		//Serial.println(SoftwareSerial::readString());
+		//delay(100);
+		//SoftwareSerial::write("AT+ADDR=?"); 
+		
+		//Serial.println(SoftwareSerial::readString());
+		//delay(100);
+		//Serial.write("AT+LADDRLADDR");
+		//delay(100);
+		//Serial.println(Serial.write(33));
     }
     delay(500);
 }
-
-
 int16_t BlueTooth::available(void)
 {
     if (_port == HARDWARE)

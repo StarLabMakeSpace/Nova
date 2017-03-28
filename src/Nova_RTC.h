@@ -1,8 +1,6 @@
 #ifndef _NOVA_RTC_h_
 #define _NOVA_RTC_h_
 #include "Arduino.h"
-#include "Nova.h"
-
 
 #define DS1307ADDR 0XD0
 
@@ -19,6 +17,12 @@
 class RTC
 {
 private:
+	void IICbegin(uint8_t sdapin,uint8_t sclpin);
+	bool IICstart(uint8_t addr);
+	bool IICrestart(uint8_t addr);
+	void IICstop();
+	uint8_t IICread(uint8_t last);
+	bool IICwrite(uint8_t data);
 	void getTime(void);
 	uint8_t decToBcd(uint8_t val);
 	uint8_t bcdToDec(uint8_t val);
@@ -31,6 +35,7 @@ private:
 	uint8_t day;
 	uint8_t month;
 	uint16_t year;
+	uint8_t SCL_pin,SDA_pin;
 public:
 	RTC(uint8_t port);
 	uint8_t getSecond(void);

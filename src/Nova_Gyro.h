@@ -44,6 +44,13 @@ private:
   uint8_t SCL_pin,SDA_pin;
   void deviceCalibration(void);
 
+  void IICbegin(uint8_t sdapin,uint8_t sclpin);
+  bool IICstart(uint8_t addr);
+  bool IICrestart(uint8_t addr);
+  void IICstop();
+  uint8_t IICread(uint8_t last);
+  bool IICwrite(uint8_t data);
+  
   int8_t writeReg(uint8_t reg, uint8_t data);
   uint8_t readReg(uint8_t reg);
   int8_t readData(uint8_t start, uint8_t *buffer, uint8_t size);

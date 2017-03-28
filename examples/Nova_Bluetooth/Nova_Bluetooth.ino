@@ -11,12 +11,26 @@ http://easy.cc
 
 #include "Nova.h"
 
-BlueTooth myBlueTooth(C0);// C0、M2
+BlueTooth myBlueTooth(M2);// C0、M2
 DigitDisplay dis =DigitDisplay(M1);// C0、C1、M0、M1、M2、M3
+
+char bluetooth_name[] = "bluetooth";
 
 void setup()
 {
+  Serial.begin(9600);
   myBlueTooth.begin(9600);
+  for(int i =0;i<strlen(bluetooth_name)+7;i++)
+  {
+    for(i=0;i<7;i++)
+    {
+    }
+    myBlueTooth.write("AT+NAME");
+    for(i=7;i<strlen(bluetooth_name)+7;i++)
+    {
+      myBlueTooth.write(bluetooth_name[i-7]);
+    }
+  }
 }
 
 void loop(){

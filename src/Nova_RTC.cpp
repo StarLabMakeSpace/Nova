@@ -1,10 +1,53 @@
 #include "Nova_RTC.h"
-#include <utility/SoftIIC.h>
 #include "string.h"
 
-#define USE_SOFT_I2C 1
+uint8_t const I2C_READ = 1;
+uint8_t const I2C_WRITE = 0;
+uint8_t const I2C_DELAY_USEC = 4;
 
-SoftIIC ds1307;
+#define USER	0x80
+#define C0	USER+1
+#define C1	USER+2
+
+#define S0	USER+11
+#define S1	USER+12
+#define S2	USER+13
+#define S3	USER+14
+#define S4	USER+15
+#define S5	USER+16
+
+#define M0	USER+21
+#define M1	USER+22
+#define M2	S4
+#define M3	S5
+
+//pin define
+#define C0_PIN_0	0
+#define C0_PIN_1	1
+
+// 位置后面需要改回来
+#define C1_PIN_0	A5	//SCL
+#define C1_PIN_1	A4	//SDA
+
+#define S0_PIN	2
+#define S1_PIN	9
+#define S2_PIN	10
+#define S3_PIN	13
+
+#define S4_PIN_0	11
+#define S4_PIN_1	12
+#define S5_PIN_0	3
+#define S5_PIN_1	4
+
+#define M0_PIN_0	5
+#define M0_PIN_1	7
+#define M1_PIN_0	6
+#define M1_PIN_1	8
+
+#define M2_PIN_0	S4_PIN_0
+#define M2_PIN_1	S4_PIN_1
+#define M3_PIN_0	S5_PIN_0
+#define M3_PIN_1	S5_PIN_1
 
 uint8_t RTC::decToBcd(uint8_t val)
 {
@@ -19,8 +62,6 @@ uint8_t RTC::bcdToDec(uint8_t val)
 
 RTC::RTC(uint8_t port)
 {
-	uint8_t SCL_pin,SDA_pin;
-
 	switch(port)
   {
     case C0:
@@ -49,7 +90,7 @@ RTC::RTC(uint8_t port)
     break;
   }
 
-    ds1307.begin(SDA_pin, SCL_pin);
+    IICbegin(SDA_pin, SCL_pin);
 }
 
 /*
@@ -57,23 +98,23 @@ RTC::RTC(uint8_t port)
  */
 uint8_t RTC::readDS1307(uint8_t address, uint8_t *buf, uint8_t count) {
   // issue a start condition, send device address and write direction bit
-  if (!ds1307.start(DS1307ADDR | I2C_WRITE)) return false;
+  if (!IICstart(DS1307ADDR | I2C_WRITE)) return false;
 
   // send the DS1307 address
-  if (!ds1307.write(address)) return false;
+  if (!IICwrite(address)) return false;
 
   // issue a repeated start condition, send device address and read direction bit
-  if (!ds1307.restart(DS1307ADDR | I2C_READ))return false;
+  if (!IICrestart(DS1307ADDR | I2C_READ))return false;
 
   // read data from the DS1307
   for (uint8_t i = 0; i < count; i++) {
 
     // send Ack until last byte then send Ack
-    buf[i] = ds1307.read(i == (count-1));
+    buf[i] = IICread(i == (count-1));
   }
 
   // issue a stop condition
-  ds1307.stop();
+  IICstop();
   return true;
 }
 //------------------------------------------------------------------------------
@@ -82,18 +123,18 @@ uint8_t RTC::readDS1307(uint8_t address, uint8_t *buf, uint8_t count) {
  */
 uint8_t RTC::writeDS1307(uint8_t address, uint8_t *buf, uint8_t count) {
   // issue a start condition, send device address and write direction bit
-  if (!ds1307.start(DS1307ADDR | I2C_WRITE)) return false;
+  if (!IICstart(DS1307ADDR | I2C_WRITE)) return false;
 
   // send the DS1307 address
-  if (!ds1307.write(address)) return false;
+  if (!IICwrite(address)) return false;
 
   // send data to the DS1307
   for (uint8_t i = 0; i < count; i++) {
-    if (!ds1307.write(buf[i])) return false;
+    if (!IICwrite(buf[i])) return false;
   }
 
   // issue a stop condition
-  ds1307.stop();
+  IICstop();
   return true;
 }
 
@@ -194,4 +235,90 @@ uint16_t RTC::getYear(void)
 {
     getTime();
 	return year+2000;
+}
+
+void RTC::IICbegin(uint8_t sdapin,uint8_t sclpin)
+{
+	SDA_pin = sdapin;
+	pinMode(SDA_pin,OUTPUT);
+	digitalWrite(SDA_pin,HIGH);
+	SCL_pin = sclpin;
+	pinMode(SCL_pin,OUTPUT);
+	digitalWrite(SCL_pin,HIGH);
+}
+bool RTC::IICstart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin, LOW);
+	return IICwrite(addr);
+}
+bool RTC::IICrestart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, HIGH);
+	digitalWrite(SCL_pin, HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	return IICstart(addr);
+}
+void RTC::IICstop()
+{
+	digitalWrite(SDA_pin,LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SDA_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+}
+uint8_t RTC::IICread(uint8_t last) {
+  uint8_t b = 0;
+  // make sure pull-up enabled
+  digitalWrite(SDA_pin, HIGH);
+  pinMode(SDA_pin, INPUT);
+  // read byte
+  for (uint8_t i = 0; i < 8; i++) {
+    // don't change this loop unless you verify the change with a scope
+    b <<= 1;
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, HIGH);
+    if (digitalRead(SDA_pin)) {b |= 1;}
+	//else b &= 0;
+    digitalWrite(SCL_pin, LOW);
+  }
+  // send Ack or Nak
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, last);
+  digitalWrite(SCL_pin, HIGH);
+  delayMicroseconds(I2C_DELAY_USEC);
+  digitalWrite(SCL_pin, LOW);
+  digitalWrite(SDA_pin, LOW);
+  return b;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Write a byte.
+ *
+ * \param[in] data The byte to send.
+ *
+ * \return The value true, 1, if the slave returned an Ack or false for Nak.
+ */
+bool RTC::IICwrite(uint8_t data) {
+  // write byte
+  for (uint8_t m = 0X80; m != 0; m >>= 1) {
+    // don't change this loop unless you verify the change with a scope
+    digitalWrite(SDA_pin, m & data);
+    digitalWrite(SCL_pin, HIGH);
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, LOW);
+  }
+  // get Ack or Nak
+  pinMode(SDA_pin, INPUT);
+  // enable pullup
+  digitalWrite(SDA_pin, HIGH);
+  digitalWrite(SCL_pin, HIGH);
+  uint8_t rtn = digitalRead(SDA_pin);
+  digitalWrite(SCL_pin, LOW);
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, LOW);
+  return rtn == 0;
 }

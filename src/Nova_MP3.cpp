@@ -111,6 +111,7 @@ void MP3::vol_dn()
 void MP3::loop_play()
 {
 	sed_buf[3] = 0x11;
+	sed_buf[6] = 0x01;
 	for (int i=0; i<8; i++) {
 		Set_MP3::write(sed_buf[i]);
 	}

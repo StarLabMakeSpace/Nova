@@ -6,8 +6,9 @@
 class Touch
 {
 public:
-	Touch(uint8_t port);
+	Touch(uint8_t pin);
 	bool state(void);
+	uint8_t read();
 private:
 	uint8_t _Touch_pin;
 };

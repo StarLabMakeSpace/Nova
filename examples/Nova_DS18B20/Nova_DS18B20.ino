@@ -6,6 +6,8 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(DS18B20.getTemp());
+  //Serial.println(DS18B20.getTemp());
+  Serial.print(DS18B20.getCelsiusTemp());
+ // Serial.println(DS18B20.getFahrenheitTemp());
   delay(100);
 }

@@ -159,6 +159,19 @@ float DS18B20::getTemp(void)
   
 }
 
+float DS18B20::getCelsiusTemp(void)
+{
+	float CelsiusTemp;
+	CelsiusTemp = getTemp();
+	return CelsiusTemp;
+}
+
+float DS18B20::getFahrenheitTemp(void)
+{
+	float FahrenheitTemp;
+	FahrenheitTemp = getTemp()*1.8+32;
+	return FahrenheitTemp;
+}
 //
 // Perform the DS18B20 reset function.  We will wait up to 250uS for
 // the bus to come high, if it doesn't then it is broken or shorted

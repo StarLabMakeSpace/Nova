@@ -8,6 +8,9 @@
 LED	KEYWORD1
 Relay	KEYWORD1
 
+ThreeGrayscale	KEYWORD1
+InfraredReceive	KEYWORD1
+
 Button	KEYWORD1
 
 Matrix	KEYWORD1
@@ -37,6 +40,8 @@ DigitDisplay	KEYWORD1
 DHT	KEYWORD1
 IRSendRev	KEYWORD1
 Ultrasonic	KEYWORD1
+Ultrasonic_analog	KEYWORD1
+Ultrasonic_digit	KEYWORD1
 RTC	KEYWORD1
 GLLED	KEYWORD1
 Motor	KEYWORD1
@@ -48,12 +53,18 @@ NovaPort	KEYWORD1
 #######################################
 state	KEYWORD2
 
+set_value	KEYWORD2
+readvalue	KEYWORD2
+
 on	KEYWORD2
 off	KEYWORD2
 
 cw	KEYWORD2
 ccw	KEYWORD2
-getTemp	KEYWORD2
+
+getCelsiusTemp KEYWORD2
+getFahrenheitTemp KEYWORD2
+
 drawPixel	KEYWORD2
 writeDisplay	KEYWORD2
 drawLine	KEYWORD2
@@ -117,6 +128,8 @@ clear	KEYWORD2
 send	KEYWORD2
 
 distance	KEYWORD2
+distance_analog	KEYWORD2
+distance_digit	KEYWORD2
 
 startClock	KEYWORD2
 stopClock	KEYWORD2

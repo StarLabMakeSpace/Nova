@@ -28,7 +28,7 @@ class BlueTooth : public SoftwareSerial
 public:
 	BlueTooth(uint8_t port);
     void begin(long baud);
-    uint8_t readAppKey(void);//读取蓝牙遥控按键
+	uint8_t readAppKey(void);//读取蓝牙遥控按键
     int16_t available(void);
     String readString(void);
     virtual size_t write(uint8_t byte);

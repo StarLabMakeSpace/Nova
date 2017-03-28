@@ -1,8 +1,8 @@
 #include "Nova_Touch.h"
 
-Touch::Touch(uint8_t port)
+Touch::Touch(uint8_t pin)
 {
-	switch(port)
+	/*switch(port)
 	{
 		case S0:
 			_Touch_pin = S0_PIN;
@@ -32,6 +32,8 @@ Touch::Touch(uint8_t port)
 	    default:
 	    break;
 	}
+	*/
+	_Touch_pin = pin;
 	pinMode(_Touch_pin, INPUT);	
 }
 uint8_t readCapacitivePin(int _Touch_pin) {
@@ -94,7 +96,10 @@ uint8_t readCapacitivePin(int _Touch_pin) {
 
   return cycles;
 }
-
+uint8_t Touch::read()
+{
+	return readCapacitivePin(_Touch_pin);
+}
 bool Touch::state(void)
 {
 	if(readCapacitivePin(_Touch_pin) > 4)

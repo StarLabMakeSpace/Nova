@@ -22,6 +22,7 @@ void Joystick::init(void)
 
 int16_t Joystick::readX(void)
 {
+	
     return (analogRead(A4)-_x_center);
 }
 

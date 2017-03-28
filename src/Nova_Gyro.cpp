@@ -1,9 +1,8 @@
 #include "Nova_Gyro.h"
-#include <utility/SoftIIC.h>
 
-#define USE_SOFT_I2C 1
-
-SoftIIC GyroIIC;
+uint8_t const I2C_READ = 1;
+uint8_t const I2C_WRITE = 0;
+uint8_t const I2C_DELAY_USEC = 4;
 
 #define USER	0x80
 #define C0	USER+1
@@ -80,7 +79,7 @@ Gyro::Gyro(uint8_t port)
 		break;
 	}
 	
-    GyroIIC.begin(SDA_pin,SCL_pin); 	
+    IICbegin(SDA_pin,SCL_pin); 	
     Device_Address = GYRO_DEFAULT_ADDRESS;
 		
 }
@@ -442,13 +441,13 @@ int8_t Gyro::writeReg(uint8_t reg, uint8_t data)
 {
   uint8_t add = Device_Address;
   add <<= 1;
-  GyroIIC.start(add+I2C_WRITE);
+  IICstart(add+I2C_WRITE);
 
-  GyroIIC.write(reg);
+  IICwrite(reg);
 
-  GyroIIC.write(data);
+  IICwrite(data);
 
-  GyroIIC.stop();
+  IICstop();
 }
 
 uint8_t Gyro::readReg(uint8_t reg)
@@ -456,13 +455,13 @@ uint8_t Gyro::readReg(uint8_t reg)
   uint8_t data = 0;
   uint8_t add = Device_Address;
   add <<= 1;
-  GyroIIC.start(add+I2C_WRITE);
-  GyroIIC.write(reg);
+  IICstart(add+I2C_WRITE);
+  IICwrite(reg);
   // read
-  GyroIIC.restart(add+I2C_READ);
+  IICrestart(add+I2C_READ);
 
-  data= GyroIIC.read(true);          
-  GyroIIC.stop();  
+  data= IICread(true);          
+  IICstop();  
   return data;
 }
 
@@ -471,14 +470,105 @@ int8_t Gyro::readData(uint8_t start, uint8_t *buffer, uint8_t size)
   uint8_t i;
   uint8_t add = Device_Address;
   add <<= 1;
-  GyroIIC.start(add+I2C_WRITE);
-  GyroIIC.write(start);
+  IICstart(add+I2C_WRITE);
+  IICwrite(start);
   // read
-  GyroIIC.restart(add+I2C_READ);
+  IICrestart(add+I2C_READ);
   for (i=0;i<size-1;i++)
   {
-    buffer[i] = GyroIIC.read(false);
+    buffer[i] = IICread(false);
   }
-  buffer[i]= GyroIIC.read(true);          
-  GyroIIC.stop();  
+  buffer[i]= IICread(true);          
+  IICstop();  
 }
+
+
+
+
+void Gyro::IICbegin(uint8_t sdapin,uint8_t sclpin)
+{
+	SDA_pin = sdapin;
+	pinMode(SDA_pin,OUTPUT);
+	digitalWrite(SDA_pin,HIGH);
+	SCL_pin = sclpin;
+	pinMode(SCL_pin,OUTPUT);
+	digitalWrite(SCL_pin,HIGH);
+}
+bool Gyro::IICstart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin, LOW);
+	return IICwrite(addr);
+}
+bool Gyro::IICrestart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, HIGH);
+	digitalWrite(SCL_pin, HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	return IICstart(addr);
+}
+void Gyro::IICstop()
+{
+	digitalWrite(SDA_pin,LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SDA_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+}
+uint8_t Gyro::IICread(uint8_t last) {
+  uint8_t b = 0;
+  // make sure pull-up enabled
+  digitalWrite(SDA_pin, HIGH);
+  pinMode(SDA_pin, INPUT);
+  // read byte
+  for (uint8_t i = 0; i < 8; i++) {
+    // don't change this loop unless you verify the change with a scope
+    b <<= 1;
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, HIGH);
+    if (digitalRead(SDA_pin)) {b |= 1;}
+	//else b &= 0;
+    digitalWrite(SCL_pin, LOW);
+  }
+  // send Ack or Nak
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, last);
+  digitalWrite(SCL_pin, HIGH);
+  delayMicroseconds(I2C_DELAY_USEC);
+  digitalWrite(SCL_pin, LOW);
+  digitalWrite(SDA_pin, LOW);
+  return b;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Write a byte.
+ *
+ * \param[in] data The byte to send.
+ *
+ * \return The value true, 1, if the slave returned an Ack or false for Nak.
+ */
+bool Gyro::IICwrite(uint8_t data) {
+  // write byte
+  for (uint8_t m = 0X80; m != 0; m >>= 1) {
+    // don't change this loop unless you verify the change with a scope
+    digitalWrite(SDA_pin, m & data);
+    digitalWrite(SCL_pin, HIGH);
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, LOW);
+  }
+  // get Ack or Nak
+  pinMode(SDA_pin, INPUT);
+  // enable pullup
+  digitalWrite(SDA_pin, HIGH);
+  digitalWrite(SCL_pin, HIGH);
+  uint8_t rtn = digitalRead(SDA_pin);
+  digitalWrite(SCL_pin, LOW);
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, LOW);
+  return rtn == 0;
+}
+
+

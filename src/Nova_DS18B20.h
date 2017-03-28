@@ -98,6 +98,13 @@ class DS18B20
   public:
     DS18B20( uint8_t port);
    float getTemp(void);
+   float getCelsiusTemp(void);
+   float getFahrenheitTemp(void);
+   
+   private:
+     float CelsiusTemp;
+     float FahrenheitTemp;
+	 
     
 
 };

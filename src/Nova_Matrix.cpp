@@ -1,7 +1,8 @@
 #include "Nova_Matrix.h"
-#include <utility/SoftIIC.h>
 
-SoftIIC MatrixIIC;
+uint8_t const I2C_READ = 1;
+uint8_t const I2C_WRITE = 0;
+uint8_t const I2C_DELAY_USEC = 4;
 
 #define USER	0x80
 #define C0	USER+1
@@ -49,7 +50,6 @@ SoftIIC MatrixIIC;
 
 Matrix::Matrix(uint8_t port)
 {
-    uint8_t SCL_pin,SDA_pin;
 	switch(port)
 	{
 	    case C0:
@@ -77,45 +77,46 @@ Matrix::Matrix(uint8_t port)
 			SDA_pin = M1_PIN_0;
 		break;
 	}
-    MatrixIIC.begin(SDA_pin,SCL_pin);  
-    constructor(8, 8);
+    
 }
 
 void Matrix::setBrightness(uint8_t b) {
   if (b > 15) b = 15;
-  MatrixIIC.start(i2c_addr | I2C_WRITE);
-  MatrixIIC.write(0xE0 | b);
-  MatrixIIC.stop();  
+  IICstart(i2c_addr | I2C_WRITE);
+  IICwrite(0xE0 | b);
+  IICstop();  
 }
 
 void Matrix::blinkRate(uint8_t b) {
-  MatrixIIC.start(i2c_addr | I2C_WRITE);
+  IICstart(i2c_addr | I2C_WRITE);
   if (b > 3) b = 0; // turn off if not sure
   
-  MatrixIIC.write(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1)); 
-  MatrixIIC.stop();
+  IICwrite(HT16K33_BLINK_CMD | HT16K33_BLINK_DISPLAYON | (b << 1)); 
+  IICstop();
 }
 
 void Matrix::begin(uint8_t _addr = 0x70) {
+	IICbegin(SDA_pin,SCL_pin);  
+    constructor(8, 8);
   i2c_addr = _addr;
   i2c_addr <<= 1;
-  MatrixIIC.start(i2c_addr | I2C_WRITE);
-  MatrixIIC.write(0x21);  // turn on oscillator
-  MatrixIIC.stop();
+  IICstart(i2c_addr | I2C_WRITE);
+  IICwrite(0x21);  // turn on oscillator
+  IICstop();
   blinkRate(HT16K33_BLINK_OFF);
   
   setBrightness(15); // max brightness
 }
 
 void Matrix::writeDisplay(void) {
-  MatrixIIC.start(i2c_addr | I2C_WRITE);
-  MatrixIIC.write((uint8_t)0x00); // start at address $00
+  IICstart(i2c_addr | I2C_WRITE);
+  IICwrite((uint8_t)0x00); // start at address $00
 
   for (uint8_t i=0; i<8; i++) {
-    MatrixIIC.write(displaybuffer[i] & 0xFF);    
-    MatrixIIC.write(displaybuffer[i] >> 8);    
+    IICwrite(displaybuffer[i] & 0xFF);    
+    IICwrite(displaybuffer[i] >> 8);    
   }
-  MatrixIIC.stop();  
+  IICstop();  
 }
 
 void Matrix::clear(void) {
@@ -585,3 +586,97 @@ int16_t Matrix::width(void) {
 int16_t Matrix::height(void) { 
   return _height; 
 }
+
+
+void Matrix::IICbegin(uint8_t sdapin,uint8_t sclpin)
+{
+	SDA_pin = sdapin;
+	pinMode(SDA_pin,OUTPUT);
+	digitalWrite(SDA_pin,HIGH);
+	SCL_pin = sclpin;
+	pinMode(SCL_pin,OUTPUT);
+	digitalWrite(SCL_pin,HIGH);
+}
+bool Matrix::IICstart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin, LOW);
+	return IICwrite(addr);
+}
+bool Matrix::IICrestart(uint8_t addr)
+{
+	digitalWrite(SDA_pin, HIGH);
+	digitalWrite(SCL_pin, HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	return IICstart(addr);
+}
+void Matrix::IICstop()
+{
+	digitalWrite(SDA_pin,LOW);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SCL_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+	digitalWrite(SDA_pin,HIGH);
+	delayMicroseconds(I2C_DELAY_USEC);
+}
+uint8_t Matrix::IICread(uint8_t last) {
+  uint8_t b = 0;
+  // make sure pull-up enabled
+  digitalWrite(SDA_pin, HIGH);
+  pinMode(SDA_pin, INPUT);
+  // read byte
+  for (uint8_t i = 0; i < 8; i++) {
+    // don't change this loop unless you verify the change with a scope
+    b <<= 1;
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, HIGH);
+    if (digitalRead(SDA_pin)) {b |= 1;}
+	//else b &= 0;
+    digitalWrite(SCL_pin, LOW);
+  }
+  // send Ack or Nak
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, last);
+  digitalWrite(SCL_pin, HIGH);
+  delayMicroseconds(I2C_DELAY_USEC);
+  digitalWrite(SCL_pin, LOW);
+  digitalWrite(SDA_pin, LOW);
+  return b;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Write a byte.
+ *
+ * \param[in] data The byte to send.
+ *
+ * \return The value true, 1, if the slave returned an Ack or false for Nak.
+ */
+bool Matrix::IICwrite(uint8_t data) {
+  // write byte
+  for (uint8_t m = 0X80; m != 0; m >>= 1) {
+    // don't change this loop unless you verify the change with a scope
+    digitalWrite(SDA_pin, m & data);
+    digitalWrite(SCL_pin, HIGH);
+    delayMicroseconds(I2C_DELAY_USEC);
+    digitalWrite(SCL_pin, LOW);
+  }
+  // get Ack or Nak
+  pinMode(SDA_pin, INPUT);
+  // enable pullup
+  digitalWrite(SDA_pin, HIGH);
+  digitalWrite(SCL_pin, HIGH);
+  uint8_t rtn = digitalRead(SDA_pin);
+  digitalWrite(SCL_pin, LOW);
+  pinMode(SDA_pin, OUTPUT);
+  digitalWrite(SDA_pin, LOW);
+  return rtn == 0;
+}
+
+
+
+
+
+
+
