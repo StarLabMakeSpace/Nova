@@ -2,7 +2,7 @@
 #define _mb_h_
 #include "Arduino.h"
 //#include"Nova.h"
-#include <utility/SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #define x_axis 1
 #define y_axis 2
 

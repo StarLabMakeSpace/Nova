@@ -1,4 +1,4 @@
-# Nova Library v1.30
+# Nova Library v1.40
 
 Arduino Library for Easy Electronic Modules
 

@@ -4,6 +4,11 @@
 #include "Nova.h"
 #include <utility/Set_MP3.h>
 //#include <util/delay.h>
+// #define S0	2
+// #define S1	9
+// #define S2	10
+// #define S3	13
+
 static uint8_t sed_buf[8] = {0X7E,0XFF,0x06,00,00,00,00,0XEF};
 
 class MP3 : public Set_MP3

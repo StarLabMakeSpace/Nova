@@ -2,7 +2,7 @@
 #define _Set_MP3_h
 
 #include "Arduino.h"
-#include <utility/SoftwareSerial.h>
+#include <SoftwareSerial.h>
 
 class Set_MP3 : public SoftwareSerial
 {

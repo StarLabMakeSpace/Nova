@@ -25,10 +25,10 @@
 #define C0	USER+1
 #define C1	USER+2
 
-#define S0	USER+11
-#define S1	USER+12
-#define S2	USER+13
-#define S3	USER+14
+#define S0	2
+#define S1	9
+#define S2	10
+#define S3	13
 #define S4	USER+15
 #define S5	USER+16
 
@@ -88,14 +88,16 @@
 #include <utility/Servo.h>
 #include <utility/Wire.h>
 #include <utility/EEPROM.h>
-#include <utility/SoftwareSerial.h>
 #include <utility/SPI.h>
+#include <SoftwareSerial.h>
+#include <Print.h>
 
 #include "Arduino.h"
 #include "Nova_LED.h"
 #include "Nova_Relay.h"
 #include "Nova_Button.h"
 #include "Nova_RGB.h"
+#include "Nova_RGBbelt.h"
 #include "Nova_TiltSwitch.h"
 #include "Nova_Vibration.h"
 #include "Nova_ITR.h"
@@ -107,7 +109,6 @@
 #include "Nova_MQ.h"
 #include "Nova_Flame.h"
 #include "Nova_4ADButton.h"
-// #include "Nova_Ultrasonic.h"
 #include "Nova_Ultrasonic_analog.h"
 #include "Nova_Ultrasonic_digit.h"
 #include "Nova_Buzzer.h"
@@ -135,6 +136,9 @@
 #include "mb.h"
 #include "Nova_ThreeGrayscale.h"
 #include "Nova_InfraredReceive.h"
+#include "Nova_LiquidCrystal_I2C.h"
+//#include "Nova_U8glib.h"
+//#include "Nova_OLED.h"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ //Get system time
 //

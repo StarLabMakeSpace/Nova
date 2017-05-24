@@ -2,7 +2,10 @@
 #define _NOVA_BLUETOOTH_H_
 #include "Arduino.h"
 #include "Nova.h"
-#include <utility/SoftwareSerial.h>
+#include <SoftwareSerial.h>
+//#include "Print.h"
+#include <Print.h>
+
 
 #define HARDWARE 1
 #define SOFTWARE 2
@@ -23,6 +26,7 @@
 #define ON 14
 #define OFF 15
 
+
 class BlueTooth : public SoftwareSerial
 {
 public:
@@ -32,9 +36,16 @@ public:
     int16_t available(void);
     String readString(void);
     virtual size_t write(uint8_t byte);
-    void write(const char *str);
+    void write(char *str);
+	// void BlueTooth::write(char str[]);
+	//void write(char string);
     void write(byte *buffer, int length);
     void readBytes(byte *buffer, int length);
+	
+	// void print(char *str);
+	// void println(char *str);
+	// void println_hex(char *str);
+	
     
 private:
 	bool stringcmp(char *str1, String str2);

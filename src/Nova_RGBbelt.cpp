@@ -1,9 +1,9 @@
 
 
-#include "Nova_RGB.h"
+#include "Nova_RGBbelt.h"
 
 
-RGB::RGB(uint8_t port)
+RGBbelt::RGBbelt(uint8_t port)
 {
 
 	switch(port)
@@ -50,7 +50,7 @@ RGB::RGB(uint8_t port)
     pixels = NULL;
     endTime = 0;
     updateType(NEO_GRB + NEO_KHZ800);
-  	updateLength(4);
+  	updateLength(60);
   	setPin(_rgb_pin);
 }
 
@@ -108,12 +108,12 @@ RGB::RGB(uint8_t port)
 // {
 // }
 
-RGB::~RGB() {
+RGBbelt::~RGBbelt() {
   if(pixels)   free(pixels);
   if(pin >= 0) pinMode(pin, INPUT);
 }
 
-void RGB::begin(void) {
+void RGBbelt::begin(void) {
   if(pin >= 0) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
@@ -121,7 +121,7 @@ void RGB::begin(void) {
   begun = true;
 }
 
-void RGB::updateLength(uint16_t n) {
+void RGBbelt::updateLength(uint16_t n) {
   if(pixels) free(pixels); // Free existing data (if any)
 
   // Allocate new data -- note: ALL PIXELS ARE CLEARED
@@ -134,7 +134,7 @@ void RGB::updateLength(uint16_t n) {
   }
 }
 
-void RGB::updateType(neoPixelType t) {
+void RGBbelt::updateType(neoPixelType t) {
   boolean oldThreeBytesPerPixel = (wOffset == rOffset); // false if RGBW
 
   wOffset = (t >> 6) & 0b11; // See notes in header file
@@ -159,7 +159,7 @@ extern "C" void ICACHE_RAM_ATTR espShow(
   uint8_t pin, uint8_t *pixels, uint32_t numBytes, uint8_t type);
 #endif // ESP8266
 
-void RGB::show(void) {
+void RGBbelt::show(void) {
 
   if(!pixels) return;
 
@@ -1254,7 +1254,7 @@ void RGB::show(void) {
 }
 
 // Set the output pin number
-void RGB::setPin(uint8_t p) {
+void RGBbelt::setPin(uint8_t p) {
   if(begun && (pin >= 0)) pinMode(pin, INPUT);
     pin = p;
     if(begun) {
@@ -1268,7 +1268,7 @@ void RGB::setPin(uint8_t p) {
 }
 
 // Set pixel color from separate R,G,B components:
-void RGB::setPixelColor(
+void RGBbelt::setPixelColor(
  uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
 
   if(n < numLEDs) {
@@ -1290,7 +1290,7 @@ void RGB::setPixelColor(
   }
 }
 
-void RGB::setPixelColor(
+void RGBbelt::setPixelColor(
  uint16_t n, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
 
   if(n < numLEDs) {
@@ -1314,7 +1314,7 @@ void RGB::setPixelColor(
 }
 
 // Set pixel color from 'packed' 32-bit RGB color:
-void RGB::setPixelColor(uint16_t n, uint32_t c) {
+void RGBbelt::setPixelColor(uint16_t n, uint32_t c) {
   if(n < numLEDs) {
     uint8_t *p,
       r = (uint8_t)(c >> 16),
@@ -1340,18 +1340,18 @@ void RGB::setPixelColor(uint16_t n, uint32_t c) {
 
 // Convert separate R,G,B into packed 32-bit RGB color.
 // Packed format is always RGB, regardless of LED strand color order.
-uint32_t RGB::Color(uint8_t r, uint8_t g, uint8_t b) {
+uint32_t RGBbelt::Color(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
 // Convert separate R,G,B,W into packed 32-bit WRGB color.
 // Packed format is always WRGB, regardless of LED strand color order.
-uint32_t RGB::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+uint32_t RGBbelt::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   return ((uint32_t)w << 24) | ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
 // Query color from previously-set pixel (returns packed 32-bit RGB value)
-uint32_t RGB::getPixelColor(uint16_t n) const {
+uint32_t RGBbelt::getPixelColor(uint16_t n) const {
   if(n >= numLEDs) return 0; // Out of bounds, return no color.
 
   uint8_t *p;
@@ -1392,11 +1392,11 @@ uint32_t RGB::getPixelColor(uint16_t n) const {
 // Returns pointer to pixels[] array.  Pixel data is stored in device-
 // native format and is not translated here.  Application will need to be
 // aware of specific pixel data format and handle colors appropriately.
-uint8_t *RGB::getPixels(void) const {
+uint8_t *RGBbelt::getPixels(void) const {
   return pixels;
 }
 
-uint16_t RGB::numPixels(void) const {
+uint16_t RGBbelt::numPixels(void) const {
   return numLEDs;
 }
 
@@ -1412,7 +1412,7 @@ uint16_t RGB::numPixels(void) const {
 // the limited number of steps (quantization) in the old data will be
 // quite visible in the re-scaled version.  For a non-destructive
 // change, you'll need to re-render the full strip data.  C'est la vie.
-void RGB::setBrightness(uint8_t b) {
+void RGBbelt::setBrightness(uint8_t b) {
   // Stored brightness value is different than what's passed.
   // This simplifies the actual scaling math later, allowing a fast
   // 8x8-bit multiply and taking the MSB.  'brightness' is a uint8_t,
@@ -1438,10 +1438,10 @@ void RGB::setBrightness(uint8_t b) {
 }
 
 //Return the brightness value
-uint8_t RGB::getBrightness(void) const {
+uint8_t RGBbelt::getBrightness(void) const {
   return brightness - 1;
 }
 
-void RGB::clear() {
+void RGBbelt::clear() {
   memset(pixels, 0, numBytes);
 }

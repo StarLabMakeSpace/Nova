@@ -19,6 +19,8 @@ BlueTooth::BlueTooth(uint8_t port) : SoftwareSerial(11, 12, false)
 	}
 }
 
+
+
 void BlueTooth::begin(long baud)
 {
     if (_port == HARDWARE)
@@ -88,7 +90,20 @@ size_t BlueTooth::write(uint8_t byte)
     }   
 }
 
-void BlueTooth::write(const char *str)
+// size_t BlueTooth::write(char string)
+// {
+    // if (_port == HARDWARE)
+    // {
+        // Serial.write(string);
+    // }
+    // else if (_port == SOFTWARE)
+    // {
+        // SoftwareSerial::write(string);
+    // }   
+// }
+
+
+void BlueTooth::write(char *str)
 {
     if (_port == HARDWARE)
     {
@@ -99,6 +114,58 @@ void BlueTooth::write(const char *str)
         SoftwareSerial::write(str);
     }
 }
+
+
+
+// void BlueTooth::write(string str)
+// {
+    // if (_port == HARDWARE)
+    // {
+        // Serial.write(str[]);
+    // }
+    // else if (_port == SOFTWARE)
+    // {
+        // SoftwareSerial::write(str);
+    // }
+// }
+
+
+// void BlueTooth::print(char *str)
+// {
+    // if (_port == HARDWARE)
+    // {
+        // Serial.print(str);
+    // }
+    // else if (_port == SOFTWARE)
+    // {
+        // SoftwareSerial::print(str);
+    // }
+// }
+
+// void BlueTooth::println(char *str)
+// {
+    // if (_port == HARDWARE)
+    // {
+        // Serial.println(str);
+    // }
+    // else if (_port == SOFTWARE)
+    // {
+        // SoftwareSerial::println(str);
+    // }
+// }
+
+// void BlueTooth::println_hex(char *str)
+// {
+    // if (_port == HARDWARE)
+    // {
+        // Serial.println(str,HEX);
+    // }
+    // else if (_port == SOFTWARE)
+    // {
+        // SoftwareSerial::println(str,HEX);
+    // }
+// }
+
 
 void BlueTooth::write(byte *buffer, int length)
 {
@@ -300,3 +367,4 @@ bool BlueTooth::stringcmp(char *str1, String str2)
   else 
     return false;
 }
+
