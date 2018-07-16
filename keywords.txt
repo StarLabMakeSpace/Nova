@@ -62,8 +62,8 @@ off	KEYWORD2
 cw	KEYWORD2
 ccw	KEYWORD2
 
-getCelsiusTemp KEYWORD2
-getFahrenheitTemp KEYWORD2
+getCelsiusTemp	KEYWORD2
+getFahrenheitTemp	KEYWORD2
 
 drawPixel	KEYWORD2
 writeDisplay	KEYWORD2
@@ -140,7 +140,7 @@ getMinute	KEYWORD2
 getHour	KEYWORD2
 getWeek	KEYWORD2
 getDay	KEYWORD2
-getMonth KEYWORD2
+getMonth	KEYWORD2
 getYear	KEYWORD2
 fillByHMS	KEYWORD2
 fillByYMD	KEYWORD2
